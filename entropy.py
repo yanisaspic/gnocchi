@@ -12,8 +12,7 @@ from skbio.diversity.alpha import shannon
 from math import exp
 import matplotlib.pyplot as plt
 
-
-def sanchez():
+def get_terms_metrics():
     """
     Return the IC score of an ontology term as proposed by Sanchez et al. (2011)
     """
@@ -26,12 +25,22 @@ nts = [gosubdag.go2nt[go] for go in go_ids_selected]
 
 corpus = {}
 
+subsumers = {}
+
+# get descendants and subsumers
 for term in nts:
     namespace = term.NS
     corpus[term.GO_name] = term.dcnt + 1
     try:
-        print(gosubdag.rcntobj.go2ancestors[term.id])
+        subsumers[term.id] = len(gosubdag.rcntobj.go2ancestors[term.id])
     except KeyError:
+        subsumers[term.id] = 0
+    subsumers[term.id] += 1
+
+print(len(subsumers))
+
+print('GO:2000341:', subsumers['GO:2000341'])
+
         
 test_corpus = list(corpus.values())
 test_corpus.sort(reverse=True)
