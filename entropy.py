@@ -1,5 +1,5 @@
 """
-Quantify the informativeness of a corpus using Shannon entropy.
+Quantify the information content of a corpus of ontology terms using Shannon entropy.
 
 @ ASLOUDJ Yanis
 10/10/2022
@@ -8,43 +8,52 @@ Quantify the informativeness of a corpus using Shannon entropy.
 
 from goatools.base import get_godag
 from goatools.gosubdag.gosubdag import GoSubDag
+import pandas as pd
+
 from skbio.diversity.alpha import shannon
 from math import exp
 import matplotlib.pyplot as plt
 
-def get_terms_metrics():
-    """
-    Return the IC score of an ontology term as proposed by Sanchez et al. (2011)
-    """
 
-# get a dict associating each term to its absolute frequency
-godag = get_godag('go-basic.obo')
-go_ids_selected = list(godag.keys())
-gosubdag = GoSubDag(go_ids_selected, godag)
-nts = [gosubdag.go2nt[go] for go in go_ids_selected]
+def get_term_leaves(gosubdag, go_id):
+    return
 
-corpus = {}
+def get_term_data(gosubdag, go_id):
+    """Return a dict associating an ontology term id (key) to its data (value).
+    Duplicate GODag terms (alternate ids) are ignored.
 
-subsumers = {}
+    Data includes:
+        > usage data: name, namespace.
+        > hierarchy data: level, depth, descendants, leaves, subsumers."""
+    term = gosubdag.go2nt[go_id]
+    term_data = {term.id: {
+        'name': term.GO_name,
+        'namespace': term.NS,
+        'level': term.level,            # level: shortest path to term node from root
+        'depth': term.depth,            # depth: longest path to term node from root
+        'descendants': term.dcnt + 1}}  # descendants: nodes below term. (+1) to compute Shannon entropy
 
-# get descendants and subsumers
-for term in nts:
-    namespace = term.NS
-    corpus[term.GO_name] = term.dcnt + 1
+    # subsumers: nodes term, term included (+1).
     try:
-        subsumers[term.id] = len(gosubdag.rcntobj.go2ancestors[term.id])
+        term_data[term.id]['subsumers'] = len(gosubdag.rcntobj.go2ancestors[term.id])
     except KeyError:
-        subsumers[term.id] = 0
-    subsumers[term.id] += 1
+        term_data[term.id]['subsumers'] = 0
+    term_data[term.id]['subsumers'] += 1
 
-print(len(subsumers))
+    return term_data
 
-print('GO:2000341:', subsumers['GO:2000341'])
+def get_onto_df(ontology):
+    """Return a dataframe associating the terms of an ontology (rows) to their respective data (columns)."""
+    onto_dict = {}
+    godag = get_godag(ontology)
+    go_ids_selected = (list(godag.keys()))
+    gosubdag = GoSubDag(go_ids_selected, godag)
+    for go_id in go_ids_selected:
+        onto_dict.update(get_term_data(gosubdag, go_id))
+    return pd.DataFrame.from_dict(onto_dict, orient='index')
 
-        
-test_corpus = list(corpus.values())
-test_corpus.sort(reverse=True)
-
+onto_df = get_onto_df('go-basic.obo')
+print(onto_df)
 
 # check if removing the most frequent terms increase Shannon entropy / check terms
 l_entropy = []
