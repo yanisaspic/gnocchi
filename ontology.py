@@ -75,4 +75,5 @@ onto_df = pd.DataFrame()
 for obo in ontologies:
     onto_df = pd.concat([onto_df, get_onto_df(obo)])
 onto_df['sanchez'] = get_ic_sanchez(onto_df)
+onto_df['level/depth'] = onto_df['level'] / onto_df['depth']
 onto_df.to_csv('ontology_direct_data.csv')
