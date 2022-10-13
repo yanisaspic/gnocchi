@@ -22,7 +22,7 @@ def get_corpus_statistics(onto_df):
         'mean_sanchez': onto_df.sanchez.mean()
         # 'std_sanchez': onto_df.sanchez.std()
     }
-print('test')
+
 def get_corpus_evolution(onto_df):
     """Returns a dict associating a decreasing corpus size to its information content."""
     corpus_evolution = {}
