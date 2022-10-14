@@ -13,8 +13,8 @@ import pandas as pd
 
 
 ### V A R S
-ontologies = ['go-basic.obo', 'hp.obo']
-onto_roots = {'BP': 'GO:0008150', 'MF': 'GO:0003674', 'CC': 'GO:0005575', 'human_phenotype': 'HP:0000001'}
+ontologies = ['go-basic.obo', 'hp.obo', 'reactome.obo', 'cl-transform.obo']
+onto_roots = {'BP': 'GO:0008150', 'MF': 'GO:0003674', 'CC': 'GO:0005575', 'human_phenotype': 'HP:0000001', 'reactome': 'R-HSA-04072000', 'cell': 'CL:0000000'}
 
 
 ### F U N C
